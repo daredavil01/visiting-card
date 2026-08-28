@@ -32,6 +32,7 @@ export const BUTTONS = {
   vCard: { action: 'vcard', label: 'vCard' },
   Copy: { action: 'copy', label: 'Copy' },
   Resume: { href: 'https://sankettambare.in/resume', label: 'Resume' },
+  Substack: { href: LINKS.SUB, label: 'Substack' },
   GitHub: { href: LINKS.GH, label: 'GitHub' },
   RunFolio: { href: LINKS.RUN, label: 'RunFolio' },
   'Race Log': { href: 'https://sankettambare.in/sports', label: 'Race Log' },

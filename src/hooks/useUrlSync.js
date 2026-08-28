@@ -13,6 +13,7 @@ export function useUrlSync() {
   const theme = useCardStore((s) => s.theme);
   const view = useCardStore((s) => s.view);
   const side = useCardStore((s) => s.side);
+  const bgMode = useCardStore((s) => s.bgMode);
   const embed = useCardStore((s) => s.embed);
   const autoflip = useCardStore((s) => s.autoflip);
   const lowfx = useCardStore((s) => s.lowfx);
@@ -28,6 +29,7 @@ export function useUrlSync() {
     set('theme', theme, DEFAULT_THEME);
     set('view', view, DEFAULT_VIEW);
     set('side', side, 'front');
+    set('bg', bgMode, 'auto');
     if (embed) q.set('embed', 'true');
     else q.delete('embed');
     if (autoflip) q.set('autoflip', 'true');
@@ -40,5 +42,5 @@ export function useUrlSync() {
     if (next !== window.location.pathname + window.location.search + window.location.hash) {
       window.history.replaceState(null, '', next);
     }
-  }, [theme, view, side, embed, autoflip, lowfx]);
+  }, [theme, view, side, bgMode, embed, autoflip, lowfx]);
 }

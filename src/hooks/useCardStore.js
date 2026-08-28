@@ -5,6 +5,21 @@ import { VIEW_KEYS, DEFAULT_VIEW, isView } from '../content/index.js';
 // Initial state comes from the URL so a shared link lands directly in the right
 // combination. Anything unrecognised falls back to the default rather than
 // erroring — a mistyped ?theme= should still render a card.
+// With no theme asked for, follow the visitor's system setting: Wanderer is the
+// dark card, Sahyadri Dawn the light one (design doc section 8, Accessibility).
+// An explicit ?theme= always wins — a shared link means what it says.
+function systemPrefersLight() {
+  try {
+    return window.matchMedia('(prefers-color-scheme: light)').matches;
+  } catch {
+    return false;
+  }
+}
+
+function preferredTheme() {
+  return systemPrefersLight() ? 'sahyadri' : DEFAULT_THEME;
+}
+
 function readParams() {
   const q = new URLSearchParams(window.location.search);
   const theme = q.get('theme');
@@ -14,9 +29,10 @@ function readParams() {
     return v !== null && v !== 'false' && v !== '0';
   };
   return {
-    theme: isTheme(theme) ? theme : DEFAULT_THEME,
+    theme: isTheme(theme) ? theme : preferredTheme(),
     view: isView(view) ? view : DEFAULT_VIEW,
     side: q.get('side') === 'back' ? 'back' : 'front',
+    bgMode: ['light', 'dark'].includes(q.get('bg')) ? q.get('bg') : 'auto',
     embed: flag('embed'),
     autoflip: flag('autoflip'),
     lowfx: flag('lowfx'),
@@ -49,6 +65,17 @@ export const useCardStore = create((set, get) => ({
   // --- Card state ---
   side: initial.side,
   flip: () => set((s) => ({ side: s.side === 'front' ? 'back' : 'front' })),
+
+  // --- Background light/dark, for the themes that support both ---
+  bgMode: initial.bgMode, // auto | light | dark
+  systemLight: systemPrefersLight(),
+  setBgMode: (m) => set({ bgMode: m }),
+  toggleBg: () =>
+    set((s) => {
+      const current = s.bgMode === 'auto' ? (s.systemLight ? 'light' : 'dark') : s.bgMode;
+      return { bgMode: current === 'light' ? 'dark' : 'light' };
+    }),
+  setSystemLight: (v) => set({ systemLight: v }),
 
   // --- Presentation flags, fixed for the session ---
   embed: initial.embed,

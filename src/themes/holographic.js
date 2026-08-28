@@ -20,6 +20,11 @@ export default {
   env: 'radial-gradient(90% 80% at 50% 50%,#14142a 0%,#08080F 70%)',
   envOverlay: 'radial-gradient(50% 40% at 50% 50%, rgba(179,155,255,.12), transparent 70%)',
 
+  // Which of light/dark this theme is at rest.
+  base: 'dark',
+  // No light variant: the card's own refracted light is the environment.
+  altEnv: null,
+
   edge: '1px solid rgba(255,255,255,.35)',
   shadow: '0 40px 90px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.35)',
   sheen: 'radial-gradient(closest-side at 30% 25%, rgba(255,255,255,.22), transparent 65%)',
@@ -41,6 +46,9 @@ export default {
   glow: 'rgba(179,155,255,.7)',
   dim: 'rgba(255,255,255,.45)',
   dim2: 'rgba(179,155,255,.85)',
+
+  // Relief on the name, for the themes whose surface justifies it.
+  emboss: '0 1px 0 rgba(255,255,255,.55), 0 -1px 0 rgba(0,0,0,.55)',
 
   radius: '14px',
   radiusS: '7px',

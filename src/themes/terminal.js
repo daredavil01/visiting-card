@@ -18,6 +18,11 @@ export default {
   envOverlay:
     'repeating-linear-gradient(to bottom, rgba(0,255,65,.035) 0 1px, transparent 1px 3px)',
 
+  // Which of light/dark this theme is at rest.
+  base: 'dark',
+  // No light variant: a phosphor CRT only exists in the dark.
+  altEnv: null,
+
   edge: '1px solid rgba(0,255,65,.5)',
   shadow:
     '0 0 60px rgba(0,255,65,.18), 0 30px 70px -30px #000, inset 0 0 40px rgba(0,255,65,.06)',
@@ -40,6 +45,9 @@ export default {
   glow: 'rgba(0,255,65,.6)',
   dim: 'rgba(0,255,65,.45)',
   dim2: 'rgba(0,255,65,.5)',
+
+  // Relief on the name, for the themes whose surface justifies it.
+  emboss: 'none',
 
   radius: '4px',
   radiusS: '2px',

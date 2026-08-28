@@ -9,6 +9,7 @@ const FIELD_URLS = {
   developer: [LINKS.GH, LINKS.IN, LINKS.DEV, LINKS.WEB],
   runner: [LINKS.RUN, 'https://sankettambare.in/sports', LINKS.WEB],
   trekker: ['https://sankettambare.in/treks', LINKS.WEB, LINKS.IN],
+  writer: [LINKS.SUB, LINKS.DEV, LINKS.WEB, LINKS.X],
 };
 
 // Escape the characters vCard treats as structure.

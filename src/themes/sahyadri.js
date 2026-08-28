@@ -19,6 +19,13 @@ export default {
   env: 'linear-gradient(180deg,#FFD4B8 0%,#F3D9CE 45%,#B8D4E3 100%)',
   envOverlay: 'radial-gradient(70% 50% at 50% 110%, rgba(45,90,61,.16), transparent 70%)',
 
+  // Which of light/dark this theme is at rest.
+  base: 'light',
+  // Dawn's counterpart: the same ridgeline at dusk, after the light has gone
+  // off the rock.
+  altEnv: 'linear-gradient(180deg,#2B2138 0%,#3E2C3A 45%,#1B2430 100%)',
+  altEnvOverlay: 'radial-gradient(70% 50% at 50% 110%, rgba(224,108,79,.2), transparent 70%)',
+
   edge: '1px solid rgba(44,44,44,.14)',
   shadow: '0 34px 70px -26px rgba(90,60,40,.42), inset 0 1px 0 rgba(255,255,255,.7)',
   sheen: 'radial-gradient(closest-side at 25% 20%, rgba(255,255,255,.5), transparent 65%)',
@@ -40,6 +47,9 @@ export default {
   glow: 'rgba(224,108,79,.35)',
   dim: 'rgba(44,44,44,.5)',
   dim2: 'rgba(45,90,61,.7)',
+
+  // Relief on the name, for the themes whose surface justifies it.
+  emboss: '0 1px 0 rgba(255,255,255,.85)',
 
   radius: '10px',
   radiusS: '5px',

@@ -19,6 +19,14 @@ export default {
   env: 'radial-gradient(120% 100% at 50% 0%,#141433 0%,#0A0A1A 60%,#06060f 100%)',
   envOverlay: 'radial-gradient(60% 50% at 50% 50%, rgba(232,168,56,.07), transparent 70%)',
 
+  // Which of light/dark this theme is at rest.
+  base: 'dark',
+  // Same slab of stone, carried out of the night and into first light — the
+  // Wanderer's other half. Doc section 5 gives this theme a dawn-adjacent
+  // palette already; the card itself is unchanged, only the world around it.
+  altEnv: 'radial-gradient(120% 100% at 50% 0%,#F3E6D2 0%,#E4D3BE 55%,#CDBBA6 100%)',
+  altEnvOverlay: 'radial-gradient(60% 50% at 50% 50%, rgba(232,168,56,.16), transparent 70%)',
+
   edge: '1px solid rgba(184,115,51,.55)',
   shadow: '0 40px 90px -30px rgba(0,0,0,.85), inset 0 1px 0 rgba(232,168,56,.22)',
   sheen: 'radial-gradient(closest-side at 30% 30%, rgba(255,225,170,.16), transparent 70%)',
@@ -40,6 +48,9 @@ export default {
   glow: 'rgba(232,168,56,.5)',
   dim: 'rgba(240,237,229,.42)',
   dim2: 'rgba(240,237,229,.4)',
+
+  // Relief on the name, for the themes whose surface justifies it.
+  emboss: 'none',
 
   radius: '16px',
   radiusS: '7px',

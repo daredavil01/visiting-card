@@ -1,11 +1,25 @@
 import { IDENTITY } from '../content/links.js';
+import ViewSignature from './ViewSignature.jsx';
 
 // Front face. Every value that differs between themes comes from `t`, every value
 // that differs between personas comes from `v` — the two axes never touch.
-export default function CardFront({ t, v, m, layerRef, tagline, caret, statNums, comboTag }) {
+export default function CardFront({
+  t,
+  v,
+  m,
+  layerRef,
+  tagline,
+  caret,
+  statNums,
+  comboTag,
+  swapping,
+}) {
   return (
     <div
       ref={layerRef}
+      // Content fades out at the edge-on moment of a view swap and back in with
+      // the new persona already in place (doc section 4).
+      className={swapping ? 'face-content swapping' : 'face-content'}
       style={{
         position: 'relative',
         height: '100%',
@@ -16,7 +30,9 @@ export default function CardFront({ t, v, m, layerRef, tagline, caret, statNums,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        {/* Slow continuous rotation, 0.5 rpm, scaling up on hover (doc 7.6). */}
         <div
+          className="sigil"
           style={{
             font: m.sigilSize + t.display,
             color: t.accent,
@@ -26,16 +42,21 @@ export default function CardFront({ t, v, m, layerRef, tagline, caret, statNums,
         >
           {v.sigil}
         </div>
-        <div
-          style={{
-            textAlign: 'right',
-            font: `400 ${m.microSize}/1.5 'JetBrains Mono',monospace`,
-            letterSpacing: '.1em',
-            color: t.dim2,
-            textTransform: 'uppercase',
-          }}
-        >
-          {v.corner}
+
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+          <div
+            style={{
+              textAlign: 'right',
+              font: `400 ${m.microSize}/1.5 'JetBrains Mono',monospace`,
+              letterSpacing: '.1em',
+              color: t.dim2,
+              textTransform: 'uppercase',
+            }}
+          >
+            {v.corner}
+          </div>
+          {/* Replays its draw animation whenever the persona changes. */}
+          <ViewSignature key={v.key} view={v} t={t} />
         </div>
       </div>
 
@@ -47,6 +68,7 @@ export default function CardFront({ t, v, m, layerRef, tagline, caret, statNums,
             color: t.text,
             letterSpacing: m.nameTrack,
             lineHeight: 1.02,
+            textShadow: t.emboss,
           }}
         >
           {IDENTITY.name}
@@ -126,6 +148,7 @@ export default function CardFront({ t, v, m, layerRef, tagline, caret, statNums,
         {v.stats.map((s, i) => (
           <div
             key={s.label}
+            className="stat"
             style={{
               flex: 1,
               padding: m.statPad,

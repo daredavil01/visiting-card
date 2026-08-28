@@ -5,12 +5,17 @@
 // and must never cause a React render. `Particles` below is only the canvas element.
 
 const REPEL_RADIUS_SQ = 80 * 80;
+const FADE_PER_FRAME = 0.045; // ~0.6s for a full cross-dissolve at 60fps
 
 export class ParticleField {
   constructor(canvas) {
     this.canvas = canvas;
     this.parts = [];
     this.dpr = 1;
+    this.alpha = 1; // global fade, drives the theme cross-dissolve
+    this.fadeTo = 1;
+    this.next = null; // theme queued behind a fade-out
+    this.converging = 0; // frames left of the view-switch implosion
   }
 
   // Called on mount, on resize, and whenever the theme or capability changes.
@@ -18,6 +23,7 @@ export class ParticleField {
     const cv = this.canvas;
     if (!cv) return;
     const r = cv.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
     // Mounting into a hidden or not-yet-laid-out container measures zero. Seeding
     // a field with no area would leave the canvas permanently blank, so remember
     // the arguments and let the next frame try again once layout has settled.
@@ -26,7 +32,6 @@ export class ParticleField {
       this.pending = [theme, { mobile, live, tier }];
       return;
     }
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = r.width * dpr;
     cv.height = r.height * dpr;
     this.dpr = dpr;
@@ -46,6 +51,24 @@ export class ParticleField {
       r: (0.5 + Math.random()) * theme.pSize,
       a: 0.2 + Math.random() * 0.7,
     }));
+  }
+
+  // Theme switch: fade the old field out, re-seed, fade the new one in
+  // (doc 7.5, "cross-dissolve: old fade 0.6s, new fade-in 0.6s").
+  crossfade(theme, opts) {
+    if (!this.theme || !this.parts.length) {
+      this.reset(theme, opts);
+      this.alpha = 1;
+      this.fadeTo = 1;
+      return;
+    }
+    this.next = [theme, opts];
+    this.fadeTo = 0;
+  }
+
+  // View switch: "particles briefly converge to card centre, then re-scatter".
+  converge() {
+    this.converging = 26;
   }
 
   // Radial burst from the card's centre, on flip.
@@ -78,9 +101,22 @@ export class ParticleField {
       this.reset(theme, opts);
       if (this.pending) return;
     }
+
+    // Advance the cross-dissolve, swapping fields at the darkest point.
+    if (this.alpha !== this.fadeTo) {
+      const dir = Math.sign(this.fadeTo - this.alpha);
+      this.alpha = Math.max(0, Math.min(1, this.alpha + dir * FADE_PER_FRAME));
+      if (this.alpha === 0 && this.next) {
+        const [theme, opts] = this.next;
+        this.next = null;
+        this.reset(theme, opts);
+        this.fadeTo = 1;
+      }
+    }
+
     const ctx = cv.getContext('2d');
     ctx.clearRect(0, 0, cv.width, cv.height);
-    if (!this.parts.length) return;
+    if (!this.parts.length || this.alpha <= 0) return;
 
     const th = this.theme;
     const dpr = this.dpr || 1;
@@ -95,6 +131,11 @@ export class ParticleField {
       ctx.shadowBlur = 8;
     }
 
+    // While converging, everything is pulled toward the card; the pull eases off
+    // over the window and the residual inward velocity becomes the re-scatter.
+    const pull = this.converging > 0 ? (this.converging / 26) * 0.9 : 0;
+    if (this.converging > 0) this.converging--;
+
     for (const p of this.parts) {
       const dx = p.x - cursorX;
       const dy = p.y - cursorY;
@@ -105,6 +146,15 @@ export class ParticleField {
         p.vx += (dx / d) * 0.28;
         p.vy += (dy / d) * 0.28;
       }
+
+      if (pull > 0) {
+        const cx = p.x - w / 2;
+        const cy = p.y - h / 2;
+        const l = Math.hypot(cx, cy) || 1;
+        p.vx -= (cx / l) * pull;
+        p.vy -= (cy / l) * pull;
+      }
+
       p.vx *= 0.975;
       p.vy *= 0.975;
       p.x += p.vx || 0;
@@ -116,7 +166,7 @@ export class ParticleField {
       if (p.y < -10) p.y = h + 10;
       if (p.y > h + 10) p.y = -10;
 
-      ctx.globalAlpha = p.a * 0.8;
+      ctx.globalAlpha = p.a * 0.8 * this.alpha;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, 6.284);
       ctx.fill();

@@ -2,10 +2,11 @@ import general from './general.js';
 import developer from './developer.js';
 import runner from './runner.js';
 import trekker from './trekker.js';
+import writer from './writer.js';
 
 // Order here is the order of the segmented control, and the order the left/right
 // arrow keys cycle through.
-export const VIEWS = { general, developer, runner, trekker };
+export const VIEWS = { general, developer, runner, trekker, writer };
 
 export const VIEW_KEYS = Object.keys(VIEWS);
 

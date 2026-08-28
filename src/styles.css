@@ -61,6 +61,21 @@ button {
   }
 }
 
+/* Scanlines scroll upward at 0.5px/frame — 4px of travel per 133ms at 60fps
+   (doc section 5, theme 2). Paired with `flick` on the same element. */
+@keyframes scanScroll {
+  to {
+    background-position-y: -4px;
+  }
+}
+
+.scanlines {
+  animation-name: scanScroll, flick;
+  animation-duration: 0.133s, 8s;
+  animation-timing-function: linear, linear;
+  animation-iteration-count: infinite, infinite;
+}
+
 @keyframes hintbob {
   0%,
   100% {
@@ -71,29 +86,219 @@ button {
   }
 }
 
+/* Blueprint: grid pulses outward from centre on load (doc section 5, theme 4). */
+@keyframes gridPulse {
+  0% {
+    transform: scale(0.82);
+    opacity: 0;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.grid-pulse {
+  animation: gridPulse 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Sigil: 0.5 rpm, scaling up on hover (doc 7.6). */
+@keyframes sigilSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sigil {
+  display: inline-block;
+  transform-origin: 50% 50%;
+  animation: sigilSpin 120s linear infinite;
+  transition: scale 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card:hover .sigil {
+  scale: 1.1;
+}
+
+/* --- View signature graphics --- */
+
+@keyframes sigDraw {
+  from {
+    stroke-dashoffset: 260;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sig-draw {
+  stroke-dasharray: 260;
+  animation: sigDraw 900ms cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+@keyframes sigPop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.sig-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sigPop 300ms cubic-bezier(0.34, 1.56, 0.64, 1) 820ms both;
+}
+
+@keyframes sigCell {
+  from {
+    transform: scale(0.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.sig-cell {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sigCell 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Writer: each rule wipes in from the left, like a line being set. */
+@keyframes sigRule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.sig-rule {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: sigRule 420ms cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+/* Sahyadri ridge rises into place once the card settles. */
+@keyframes ridgeRise {
+  from {
+    transform: translateY(28%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sig-ridge {
+  animation: ridgeRise 1s cubic-bezier(0.22, 1, 0.36, 1) 160ms both;
+}
+
+/* Blueprint annotations are added one at a time, as a draughtsman would. */
+@keyframes annoFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sig-anno {
+  animation: annoFade 500ms ease both;
+}
+
+/* --- View transition (doc section 4) --- */
+
+/* Content is hidden through the edge-on half-turn and returns with the new
+   persona already swapped in. */
+.face-content {
+  transition: opacity 160ms ease;
+}
+
+.face-content.swapping {
+  opacity: 0;
+}
+
+/* --- Back-face reveal (doc 7.6) --- */
+
+@keyframes revealRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.reveal {
+  animation: revealRight 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* --- Interactive states --- */
 
 .row-link {
   border-radius: 4px;
-  transition: opacity 160ms ease, transform 160ms ease;
+  /* The magnetic offset is written inline by CardBack; this eases it back. */
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), filter 200ms ease;
 }
 
 .row-link:hover {
-  opacity: 0.72;
-  transform: translateX(2px);
+  filter: drop-shadow(0 0 6px var(--glow, transparent)) brightness(1.15);
 }
 
-/* CTA fill wipe, left to right, using the theme colours passed in inline. */
+/* CTA: a left-to-right colour wipe rather than a plain background swap. */
 .cta {
   position: relative;
   overflow: hidden;
-  transition: background 220ms ease, color 220ms ease;
+  background-color: var(--rest);
+  background-image: linear-gradient(to right, var(--fill) 0 50%, transparent 50% 100%);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  background-repeat: no-repeat;
+  transition: background-position 320ms cubic-bezier(0.65, 0, 0.35, 1), color 220ms ease 90ms;
 }
 
 .cta:hover,
 .cta:focus-visible {
-  background: var(--fill) !important;
-  color: var(--fillText) !important;
+  background-position: 0 0;
+  color: var(--fillText);
+}
+
+/* vCard's arrow bounces downward on hover. */
+.cta-arrow {
+  display: inline-block;
+}
+
+.cta:hover .cta-arrow {
+  animation: arrowBounce 700ms ease infinite;
+}
+
+@keyframes arrowBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(3px);
+  }
+}
+
+.stat {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card:hover .stat:hover {
+  transform: translateY(-2px);
 }
 
 .chip:hover {
@@ -130,7 +335,8 @@ button {
 }
 
 /* Keep links in the overlay focusable and visible once tabbed to. */
-.sr-only a:focus {
+.sr-only a:focus,
+.sr-only button:focus {
   position: fixed;
   top: 8px;
   left: 8px;

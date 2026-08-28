@@ -6,7 +6,13 @@ import { downloadVCard, copyVCard } from '../utils/vcard.js';
 // Rows whose `key` resolves to a real destination become anchors; the rest stay
 // text. Anchors and buttons stop propagation so activating one never also flips
 // the card out from under the visitor.
-export default function CardBack({ t, v, m, onCopied }) {
+//
+// This component is keyed on view+side in Card, so it remounts on every flip and
+// the staggered reveal (doc 7.6, "slide-right reveal, staggered 80ms") replays.
+
+const STAGGER_MS = 80;
+
+export default function CardBack({ t, v, m, onCopied, onLink }) {
   const stop = (e) => e.stopPropagation();
 
   const handleButton = (e, spec) => {
@@ -14,6 +20,24 @@ export default function CardBack({ t, v, m, onCopied }) {
     if (spec.action === 'vcard') downloadVCard(v);
     else if (spec.action === 'copy') copyVCard(v).then(onCopied);
   };
+
+  // Magnetic pull, 40px radius (doc 7.2). Runs only while the pointer is over the
+  // row, and writes the transform directly — no state, no rerender.
+  const magnetise = (e) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const dx = e.clientX - (r.left + r.width / 2);
+    const dy = e.clientY - (r.top + r.height / 2);
+    const pull = 0.18;
+    el.style.transform = `translate(${(dx * pull).toFixed(1)}px, ${(dy * pull).toFixed(1)}px)`;
+  };
+  const release = (e) => {
+    e.currentTarget.style.transform = '';
+  };
+
+  // One running index across both columns so the stagger reads as a single sweep
+  // down the face rather than two races.
+  let order = 0;
 
   return (
     <div
@@ -41,12 +65,14 @@ export default function CardBack({ t, v, m, onCopied }) {
             {col.sections.map((sec) => (
               <div key={sec.label}>
                 <div
+                  className="reveal"
                   style={{
                     font: `500 ${m.microSize}/1 ${t.body}`,
                     letterSpacing: '.2em',
                     color: t.accent,
                     textTransform: 'uppercase',
                     marginBottom: 6,
+                    animationDelay: `${order++ * STAGGER_MS}ms`,
                   }}
                 >
                   {sec.label}
@@ -80,24 +106,35 @@ export default function CardBack({ t, v, m, onCopied }) {
                       </>
                     );
 
-                    const style = { display: 'flex', gap: 7, alignItems: 'baseline' };
+                    const style = {
+                      display: 'flex',
+                      gap: 7,
+                      alignItems: 'baseline',
+                      animationDelay: `${order++ * STAGGER_MS}ms`,
+                      '--glow': t.glow,
+                    };
 
                     return href ? (
                       <a
                         key={it.text}
-                        className="row-link"
+                        className="row-link reveal"
                         href={href}
                         target={href.startsWith('mailto:') ? undefined : '_blank'}
                         rel="noopener noreferrer"
-                        onClick={stop}
+                        onClick={(e) => {
+                          stop(e);
+                          onLink?.(it.key);
+                        }}
                         onPointerDown={stop}
+                        onPointerMove={magnetise}
+                        onPointerLeave={release}
                         tabIndex={-1}
                         style={style}
                       >
                         {row}
                       </a>
                     ) : (
-                      <div key={it.text} style={style}>
+                      <div key={it.text} className="reveal" style={style}>
                         {row}
                       </div>
                     );
@@ -117,7 +154,7 @@ export default function CardBack({ t, v, m, onCopied }) {
           paddingTop: m.gapS,
         }}
       >
-        {v.back.buttons.map((label) => {
+        {v.back.buttons.map((label, i) => {
           const spec = buttonFor(label);
           const style = {
             flex: 1,
@@ -129,43 +166,58 @@ export default function CardBack({ t, v, m, onCopied }) {
             letterSpacing: '.1em',
             textTransform: 'uppercase',
             color: t.accent,
-            background: t.statBg,
             cursor: 'pointer',
+            animationDelay: `${(order + i) * STAGGER_MS}ms`,
+            // Drives the left-to-right fill wipe in styles.css.
             '--fill': t.accent,
             '--fillText': t.surfaceSolid,
+            '--rest': t.statBg,
           };
+
+          const body =
+            spec.action === 'vcard' ? (
+              <>
+                <span className="cta-arrow">⬇</span> {spec.label}
+              </>
+            ) : (
+              spec.label
+            );
 
           return spec.href ? (
             <a
               key={label}
-              className="cta"
+              className="cta reveal"
               href={spec.href}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={stop}
+              onClick={(e) => {
+                stop(e);
+                onLink?.(label);
+              }}
               onPointerDown={stop}
               tabIndex={-1}
               style={style}
             >
-              {spec.label}
+              {body}
             </a>
           ) : (
             <button
               key={label}
               type="button"
-              className="cta"
+              className="cta reveal"
               onClick={(e) => handleButton(e, spec)}
               onPointerDown={stop}
               tabIndex={-1}
               style={style}
             >
-              {spec.label}
+              {body}
             </button>
           );
         })}
       </div>
 
       <div
+        className="reveal"
         style={{
           fontWeight: 400,
           fontSize: m.bodySize,
@@ -175,6 +227,7 @@ export default function CardBack({ t, v, m, onCopied }) {
           color: t.text,
           opacity: 0.62,
           textWrap: 'pretty',
+          animationDelay: `${(order + 4) * STAGGER_MS}ms`,
         }}
       >
         {v.back.quote}
