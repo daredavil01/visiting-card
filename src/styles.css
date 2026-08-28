@@ -1,0 +1,155 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #08080f;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* --- Card-surface animations --- */
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* CRT tube instability: a couple of dips, then steady. */
+@keyframes flick {
+  0%,
+  96% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 0.82;
+  }
+  98% {
+    opacity: 1;
+  }
+  99% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes hintbob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* --- Interactive states --- */
+
+.row-link {
+  border-radius: 4px;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.row-link:hover {
+  opacity: 0.72;
+  transform: translateX(2px);
+}
+
+/* CTA fill wipe, left to right, using the theme colours passed in inline. */
+.cta {
+  position: relative;
+  overflow: hidden;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+.cta:hover,
+.cta:focus-visible {
+  background: var(--fill) !important;
+  color: var(--fillText) !important;
+}
+
+.chip:hover {
+  filter: brightness(1.25);
+}
+
+/* The card is reachable by keyboard; make that obvious. */
+.card:focus-visible,
+.cta:focus-visible,
+.chip:focus-visible,
+.row-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.card:focus-visible {
+  outline-color: #fff;
+  outline-offset: 6px;
+}
+
+/* --- Screen-reader alternative to the 3D card --- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keep links in the overlay focusable and visible once tabbed to. */
+.sr-only a:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  clip: auto;
+  clip-path: none;
+  padding: 8px 12px;
+  background: #fff;
+  color: #000;
+  z-index: 999;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
