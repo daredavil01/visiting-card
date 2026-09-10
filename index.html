@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="color-scheme" content="dark light" />
 
     <title>Sanket Tambare — Visiting Card</title>
@@ -20,9 +23,23 @@
       content="A card you want to play with before you read. Tilt it, flip it, toss it."
     />
     <meta property="og:url" content="https://card.sankettambare.in/" />
-    <!-- TODO(status.md): og-*.png are not generated yet. -->
-    <meta property="og:image" content="https://card.sankettambare.in/og-wanderer.png" />
+    <!--
+      The two image tags and the two title tags below are rewritten per ?theme=
+      and ?view= by functions/_middleware.js. The defaults here are what a link
+      with no parameters gets. Regenerate the images with `npm run og`.
+    -->
+    <meta
+      property="og:image"
+      content="https://card.sankettambare.in/og-wanderer.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sanket Tambare — Visiting Card" />
+    <meta
+      name="twitter:image"
+      content="https://card.sankettambare.in/og-wanderer.png"
+    />
     <meta name="twitter:creator" content="@i_daredavil" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -36,6 +53,30 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!--
+      Google Analytics 4. src/utils/analytics.js finds window.gtag on its own and
+      queues events until it appears, so nothing here needs to know what the app
+      tracks. The measurement ID is public by design — it identifies the property,
+      it does not grant access to it.
+
+      GA4 sets cookies, unlike the Plausible / Umami paths analytics.js also
+      supports. Whether this page needs a consent notice is a policy call, not a
+      code one.
+    -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-HFC9292JYX"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-HFC9292JYX");
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

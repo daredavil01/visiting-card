@@ -1,5 +1,6 @@
 import { hrefFor, buttonFor } from '../content/links.js';
 import { downloadVCard, copyVCard } from '../utils/vcard.js';
+import { analytics } from '../utils/analytics.js';
 
 // Back face. Two columns of sections, a CTA row, and the closing quote.
 //
@@ -17,8 +18,10 @@ export default function CardBack({ t, v, m, portrait, onCopied, onLink }) {
 
   const handleButton = (e, spec) => {
     e.stopPropagation();
-    if (spec.action === 'vcard') downloadVCard(v);
-    else if (spec.action === 'copy') copyVCard(v).then(onCopied);
+    if (spec.action === 'vcard') {
+      downloadVCard(v);
+      analytics.vcard(v.key);
+    } else if (spec.action === 'copy') copyVCard(v).then(onCopied);
   };
 
   // Magnetic pull, 40px radius (doc 7.2). Runs only while the pointer is over the

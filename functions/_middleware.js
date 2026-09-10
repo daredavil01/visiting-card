@@ -6,19 +6,18 @@
 // streams the response and swaps the two image tags — no rendering, no cost worth
 // measuring, and the HTML on disk stays a plain static file.
 
-const OG_IMAGES = {
-  wanderer: '/og-wanderer.png',
-  terminal: '/og-terminal.png',
-  sahyadri: '/og-sahyadri.png',
-  blueprint: '/og-blueprint.png',
-  holographic: '/og-holographic.png',
-};
+// Pages bundles Functions with esbuild, so this resolves at build time and the
+// theme-to-file mapping stays in one place rather than being copied here.
+import { OG_IMAGES, OG_DEFAULT } from '../src/utils/og-image.js';
 
+// One line per view in src/content/. A view missing here simply keeps the
+// default title from index.html.
 const VIEW_TITLES = {
   general: 'Sanket Tambare — Software Developer, Runner, Writer',
   developer: 'Sanket Tambare — Full-Stack Developer & Data Engineer',
   runner: 'Sanket Tambare — Ultra Runner',
   trekker: 'Sanket Tambare — Sahyadri Trekker',
+  writer: 'Sanket Tambare — Writer, Reader & Data Journalist',
 };
 
 class MetaRewriter {
@@ -53,6 +52,6 @@ export async function onRequest(context) {
 
   const origin = url.origin;
   return new HTMLRewriter()
-    .on('meta', new MetaRewriter(origin + (image || OG_IMAGES.wanderer), title))
+    .on('meta', new MetaRewriter(origin + (image || OG_DEFAULT), title))
     .transform(response);
 }

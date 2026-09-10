@@ -3,11 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "3D interactive visiting card — 5 themes x 4 persona views",
+  "description": "3D interactive visiting card — 5 themes x 5 persona views",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "og": "node scripts/make-og.mjs",
+    "qr": "node scripts/make-qr.mjs",
+    "check:qr": "node scripts/check-qr.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -15,6 +18,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@vitejs/plugin-react": "^6.1.1",
     "qrcode": "^1.5.4",
     "vite": "^8.2.2"

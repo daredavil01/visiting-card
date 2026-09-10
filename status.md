@@ -15,7 +15,7 @@ A single-URL, physics-aware interactive visiting card with two independent axes:
 
 ## Current status
 
-**Phase 4 in progress — feature-complete port, not yet deployed.**
+**Phase 4 complete.** Live at [card.sankettambare.in](https://card.sankettambare.in).
 
 ```bash
 npm install
@@ -32,6 +32,21 @@ npm run build
 What runs today: all 5 themes × all 5 views, tilt, flip, drag-and-toss, particles,
 magnetic cursor, typewriter tagline, count-up stats, URL params, embed mode,
 vCard download, keyboard control, reduced-motion and low-tier fallbacks.
+
+Asset generators, run on demand rather than as part of the build — their output is
+committed:
+
+```bash
+npm run og
+```
+
+```bash
+npm run qr
+```
+
+```bash
+npm run check:qr
+```
 
 ---
 
@@ -55,6 +70,7 @@ rather than a prerequisite.
 | `zustand` | theme / view / side store (doc §8) |
 | `vite`, `@vitejs/plugin-react` | build |
 | `qrcode` (dev) | `scripts/check-qr.mjs` verifies the hand-rolled QR encoder in `src/utils/qr.js` |
+| `@resvg/resvg-js` (dev) | rasterises the OG images and the print QR; never loaded by the app |
 
 Not installed: `framer-motion`, `gsap`, `@react-three/*`, `@react-three/rapier`, `leva`.
 The rAF loop and CSS transitions cover what they would have done.
@@ -105,10 +121,12 @@ The rAF loop and CSS transitions cover what they would have done.
 - [x] Screen-reader overlay with all contact info
 - [x] `prefers-reduced-motion` respected
 - [x] Device tiering — particle count scales, effects gate on low tier
-- [ ] OG images per theme (5 PNGs) — **not generated**
-- [ ] Deploy to Cloudflare Pages — **needs account access**
-- [ ] QR code for the physical card
-- [ ] Analytics events (theme / view / flip / link CTR)
+- [x] OG images per theme (5 PNGs) — `npm run og`
+- [x] QR code for the physical card — `npm run qr`
+- [x] Analytics events (theme / view / flip / link CTR) — GA4
+- [x] Deploy to Cloudflare Pages — `card.sankettambare.in`, custom domain resolving,
+      `functions/_middleware.js` running (a request with `?theme=` comes back with the
+      matching `og:image`)
 
 ### Phase 5 — Deferred (optional upgrade)
 - [ ] R3F card layer: `meshPhysicalMaterial` iridescence + clearcoat, `MeshTransmissionMaterial`
@@ -158,8 +176,9 @@ rows use (`MAIL`, `WEB`, `IN`, `GH`, `SUB`, `X`, `DEV`, `STRV`, `RUN`, `PIC`).
 | `dev.to/daredavil` | Unverified — linked optimistically. |
 | `runfolio.sankettambare.in` | Unverified — linked optimistically. |
 | Resume PDF | Not supplied. The `Resume` button points at `sankettambare.in/resume`. |
-| OG images | Not generated. `index.html` references `/og-wanderer.png` etc.; the files do not exist yet. |
-| Custom domain | `card.sankettambare.in` not yet configured. |
+| OG images | Generated, `public/og-*.png` at 1200 × 630 — but **not yet on the deploy**, so the middleware currently rewrites `og:image` to a URL that 404s. Ship them before sharing any link. Untested against a real crawler. |
+| Analytics | GA4, property `G-HFC9292JYX`, tag in `index.html`, verified in dev — **not yet on the deploy**, so nothing is being recorded in production. GA4 sets cookies; whether the page needs a consent notice is unresolved. |
+| Custom domain | `card.sankettambare.in` live. The print QR points at it. |
 | Font payload | 8 families across the 5 themes, loaded from Google Fonts. Not counted in the bundle figure below; worth measuring before launch. |
 
 ---
@@ -213,6 +232,25 @@ set of type numbers, and each face is still scaled to fit, so overflow remains
 impossible by construction. Selected by `(max-width: 820px) and (orientation:
 portrait)`: a phone turned sideways keeps the landscape card, which suits that
 viewport shape better.
+
+**2026-09-10 — OG images are a drawing of the card, not a photograph of it.**
+The alternative was a headless browser in the build, screenshotting the running app
+per theme. Rejected: the card's craft is tilt, foil, particles and physics — all
+motion and pointer response — so a still frame of it captures the one thing it is
+worst at, and the cost is a browser download as a build dependency. `scripts/make-og.mjs`
+writes an SVG per theme instead and `@resvg/resvg-js` rasterises it. Colours, fonts,
+radius and accent are read from `src/themes/`, so a theme edit lands in the image on
+the next run; only the two gradients per theme are restated, because the theme files
+hold CSS gradient strings that resvg cannot parse. Fonts come from Google Fonts once
+and cache under `scripts/.fontcache/` — and are unwrapped from WOFF by hand, because
+resvg reads sfnt only and resvg-js 2.6.2's `fontBuffers` loads glyphs without family
+names, which silently collapses all eight faces into one.
+
+**2026-09-10 — GA4, with the sniffing left in.**
+`src/utils/analytics.js` was written provider-agnostic and already queued every
+event; wiring GA4 was a tag in `index.html` and no code change. The Plausible /
+Umami / Fathom branches stay — they cost nothing and they are the exit if the
+cookie question ever forces one.
 
 **2026-08-28 — `App` stays a class component.**
 The animation loop writes `style.transform` directly on refs every frame and never
