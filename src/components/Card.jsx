@@ -17,7 +17,7 @@ import ThemeSignature from './ThemeSignature.jsx';
 //   rim         Fresnel edge-light, brightens as the card turns away (doc 7.1)
 //   signature   per-theme drawing: Sahyadri's ridge, Blueprint's annotations
 //   content     the face itself, parallaxed forward on Z
-function Face({ t, children, back, refs = {} }) {
+function Face({ t, children, back, portrait, refs = {} }) {
   const gradient = t.surface.includes('gradient');
 
   return (
@@ -107,7 +107,7 @@ function Face({ t, children, back, refs = {} }) {
         }}
       />
 
-      {!back && <ThemeSignature t={t} />}
+      {!back && <ThemeSignature t={t} portrait={portrait} />}
 
       {/* The faces are a visual rendering of content that A11yOverlay carries in
           readable form. Hiding them here stops a screen reader announcing the
@@ -140,6 +140,7 @@ export default function Card({
   onLink,
   side,
   swapping,
+  portrait,
 }) {
   return (
     <div style={{ perspective: '1600px', perspectiveOrigin: '50% 50%' }}>
@@ -179,7 +180,7 @@ export default function Card({
           willChange: 'transform',
         }}
       >
-        <Face t={t} refs={frontRefs}>
+        <Face t={t} portrait={portrait} refs={frontRefs}>
           <CardFront
             t={t}
             v={v}
@@ -190,10 +191,11 @@ export default function Card({
             statNums={statNums}
             comboTag={comboTag}
             swapping={swapping}
+            portrait={portrait}
           />
         </Face>
 
-        <Face t={t} back refs={backRefs}>
+        <Face t={t} back portrait={portrait} refs={backRefs}>
           {/* Keyed on view and side so the staggered reveal replays each time the
               card is turned over or the persona changes. */}
           <CardBack
@@ -201,6 +203,7 @@ export default function Card({
             t={t}
             v={v}
             m={m}
+            portrait={portrait}
             onCopied={onCopied}
             onLink={onLink}
           />

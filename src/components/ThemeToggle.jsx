@@ -1,4 +1,5 @@
 import { THEMES, THEME_KEYS } from '../themes/index.js';
+import { SAFE_TOP, SAFE_RIGHT } from '../utils/safeArea.js';
 
 // Top-right pill. Changes how the card looks; never what it says.
 export default function ThemeToggle({ t, active, onPick, compact }) {
@@ -6,8 +7,8 @@ export default function ThemeToggle({ t, active, onPick, compact }) {
     <div
       style={{
         position: 'absolute',
-        top: compact ? 16 : 26,
-        right: compact ? 14 : 28,
+        top: compact ? SAFE_TOP : 26,
+        right: compact ? SAFE_RIGHT : 28,
         zIndex: 6,
         display: 'flex',
         flexDirection: 'column',

@@ -12,12 +12,13 @@ import { useTheme } from './hooks/useTheme.js';
 import { useView } from './hooks/useView.js';
 import { useUrlSync } from './hooks/useUrlSync.js';
 import { useDeviceTier } from './hooks/useDeviceTier.js';
-import { useMediaQuery, MOBILE_QUERY } from './hooks/useMediaQuery.js';
+import { useMediaQuery, MOBILE_QUERY, PORTRAIT_QUERY } from './hooks/useMediaQuery.js';
 import { useCardScale } from './hooks/useCardScale.js';
 import { useBackground } from './hooks/useBackground.js';
-import { METRICS } from './utils/metrics.js';
+import { metricsFor } from './utils/metrics.js';
 import { createGyro } from './utils/gyro.js';
 import { analytics } from './utils/analytics.js';
+import { SAFE_TOP } from './utils/safeArea.js';
 import { VIEWS } from './content/index.js';
 
 const MAX_TILT = 15; // degrees, design doc section 7.1
@@ -592,8 +593,8 @@ class Scene extends Component {
   // --- render --------------------------------------------------------------
 
   render() {
-    const { t, m, mobile, embed, side, theme, view, setTheme, setView, urlHint, scale, bg,
-      toggleBg } = this.props;
+    const { t, m, mobile, portrait, embed, side, theme, view, setTheme, setView, urlHint,
+      scale, bg, toggleBg } = this.props;
     const s = this.state;
     const v = this.view();
     const live = this.live();
@@ -637,7 +638,7 @@ class Scene extends Component {
               <div
                 style={{
                   position: 'absolute',
-                  top: mobile ? 16 : 26,
+                  top: mobile ? SAFE_TOP : 26,
                   left: '50%',
                   transform: 'translateX(-50%)',
                   zIndex: 6,
@@ -670,6 +671,7 @@ class Scene extends Component {
               t={t}
               v={v}
               m={m}
+              portrait={portrait}
               side={side}
               swapping={s.swapping}
               cardRef={this.cardRef}
@@ -757,6 +759,8 @@ export default function App() {
   const t = useTheme();
   const v = useView();
   const mobile = useMediaQuery(MOBILE_QUERY);
+  // A phone held upright gets the upright card, not a shrunken landscape one.
+  const portrait = useMediaQuery(PORTRAIT_QUERY);
 
   const theme = useCardStore((s) => s.theme);
   const view = useCardStore((s) => s.view);
@@ -771,7 +775,7 @@ export default function App() {
   const cycleView = useCardStore((s) => s.cycleView);
   const flip = useCardStore((s) => s.flip);
 
-  const scale = useCardScale(mobile, embed);
+  const scale = useCardScale(mobile, embed, portrait);
   const bg = useBackground(t);
   const toggleBg = useCardStore((s) => s.toggleBg);
 
@@ -781,9 +785,10 @@ export default function App() {
     <Scene
       t={t}
       v={v}
-      m={METRICS}
+      m={metricsFor(portrait)}
       scale={scale}
       mobile={mobile}
+      portrait={portrait}
       theme={theme}
       view={view}
       side={side}

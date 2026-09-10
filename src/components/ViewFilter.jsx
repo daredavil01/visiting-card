@@ -1,4 +1,5 @@
 import { VIEWS, VIEW_KEYS } from '../content/index.js';
+import { SAFE_BOTTOM, SAFE_LEFT, SAFE_RIGHT } from '../utils/safeArea.js';
 
 // Bottom-left segmented control. Changes what the card says; never how it looks.
 export default function ViewFilter({ t, active, onPick, urlHint, compact }) {
@@ -6,9 +7,9 @@ export default function ViewFilter({ t, active, onPick, urlHint, compact }) {
     <div
       style={{
         position: 'absolute',
-        bottom: compact ? 16 : 30,
-        left: compact ? 14 : 28,
-        right: compact ? 14 : 'auto',
+        bottom: compact ? SAFE_BOTTOM : 30,
+        left: compact ? SAFE_LEFT : 28,
+        right: compact ? SAFE_RIGHT : 'auto',
         zIndex: 6,
         display: 'flex',
         flexDirection: 'column',

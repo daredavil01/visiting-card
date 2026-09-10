@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { qrModules } from '../utils/qr.js';
 import { analytics } from '../utils/analytics.js';
+import { SAFE_TOP, SAFE_LEFT } from '../utils/safeArea.js';
 
 // The share surface: one button, and a panel holding a QR code of exactly what
 // the visitor is looking at — theme, view, and side all travel in the URL, so
@@ -111,8 +112,8 @@ export default function SharePanel({ t, view, theme, compact }) {
     <div
       style={{
         position: 'absolute',
-        top: compact ? 16 : 26,
-        left: compact ? 14 : 28,
+        top: compact ? SAFE_TOP : 26,
+        left: compact ? SAFE_LEFT : 28,
         zIndex: 7,
         display: 'flex',
         flexDirection: 'column',

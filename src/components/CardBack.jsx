@@ -12,7 +12,7 @@ import { downloadVCard, copyVCard } from '../utils/vcard.js';
 
 const STAGGER_MS = 80;
 
-export default function CardBack({ t, v, m, onCopied, onLink }) {
+export default function CardBack({ t, v, m, portrait, onCopied, onLink }) {
   const stop = (e) => e.stopPropagation();
 
   const handleButton = (e, spec) => {
@@ -50,12 +50,25 @@ export default function CardBack({ t, v, m, onCopied, onLink }) {
         gap: m.gapS,
       }}
     >
-      <div style={{ display: 'flex', gap: m.gap, flex: 1, minHeight: 0 }}>
+      <div
+        style={{
+          display: 'flex',
+          // Upright there is height to spend and no width to spare, so the two
+          // columns become one run of sections down the face. The stagger index
+          // already sweeps across both, so the reveal reads the same either way.
+          flexDirection: portrait ? 'column' : 'row',
+          gap: portrait ? m.gapS : m.gap,
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         {v.back.cols.map((col, ci) => (
           <div
             key={ci}
             style={{
-              flex: 1,
+              // Stacked, a column takes the height its sections need rather
+              // than an equal share — one section should not claim half the face.
+              flex: portrait ? 'none' : 1,
               display: 'flex',
               flexDirection: 'column',
               gap: m.gapS,

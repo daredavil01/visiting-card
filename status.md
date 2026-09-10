@@ -1,7 +1,7 @@
 # Development Status — 3D Interactive Visiting Card
 
 A single-URL, physics-aware interactive visiting card with two independent axes:
-**5 themes** (how it looks) × **4 views** (what it says).
+**5 themes** (how it looks) × **5 views** (what it says).
 
 | | |
 |---|---|
@@ -9,7 +9,7 @@ A single-URL, physics-aware interactive visiting card with two independent axes:
 | **Design prototype** | [Claude Design artifact `a31e7d3a`](https://claude.ai/code/artifact/a31e7d3a-6b12-47c8-ab73-2bd9bd764115) |
 | **Target URL** | `card.sankettambare.in` (Cloudflare Pages) |
 | **Owner** | Sanket Tambare |
-| **Last updated** | 2026-08-28 |
+| **Last updated** | 2026-09-10 |
 
 ---
 
@@ -29,7 +29,7 @@ npm run dev
 npm run build
 ```
 
-What runs today: all 5 themes × all 4 views, tilt, flip, drag-and-toss, particles,
+What runs today: all 5 themes × all 5 views, tilt, flip, drag-and-toss, particles,
 magnetic cursor, typewriter tagline, count-up stats, URL params, embed mode,
 vCard download, keyboard control, reduced-motion and low-tier fallbacks.
 
@@ -54,6 +54,7 @@ rather than a prerequisite.
 | `react`, `react-dom` | UI |
 | `zustand` | theme / view / side store (doc §8) |
 | `vite`, `@vitejs/plugin-react` | build |
+| `qrcode` (dev) | `scripts/check-qr.mjs` verifies the hand-rolled QR encoder in `src/utils/qr.js` |
 
 Not installed: `framer-motion`, `gsap`, `@react-three/*`, `@react-three/rapier`, `leva`.
 The rAF loop and CSS transitions cover what they would have done.
@@ -99,7 +100,7 @@ The rAF loop and CSS transitions cover what they would have done.
 - [x] Embed mode — chrome hidden, transparent background
 - [x] vCard generation, view-aware
 - [x] Copy-to-clipboard, real links on every back-face row
-- [x] Responsive layout (single layout, scaled to fit the viewport)
+- [x] Responsive layout — landscape 620 x 391, upright 372 x 590, each scaled to fit
 - [x] Keyboard: Enter/Space flip, ←/→ view, ↑/↓ theme, visible focus ring
 - [x] Screen-reader overlay with all contact info
 - [x] `prefers-reduced-motion` respected
@@ -126,7 +127,7 @@ The rAF loop and CSS transitions cover what they would have done.
 
 ## Content inventory
 
-Every view in `src/content/` supplies the same shape. Adding a fifth view is mechanical:
+Every view in `src/content/` supplies the same shape. Adding a sixth view is mechanical:
 
 | Field | Type | Notes |
 |---|---|---|
@@ -167,7 +168,7 @@ rows use (`MAIL`, `WEB`, `IN`, `GH`, `SUB`, `X`, `DEV`, `STRV`, `RUN`, `PIC`).
 
 | Metric | Target | Actual |
 |---|---|---|
-| Total bundle (gzipped) | < 450 KB | **61 KB** (59.5 JS + 0.8 CSS + 0.9 HTML) — 14% of budget |
+| Total bundle (gzipped) | < 450 KB | **70 KB** (67.7 JS + 1.5 CSS + 0.9 HTML) — 16% of budget |
 | Frame rate | 60 FPS desktop | rAF loop writes transforms directly, no React re-render per frame |
 | Particle count | 200 / 120 / 60 by tier | 150 Wanderer, 100 Holographic, 80 Sahyadri, 40 Blueprint, 0 Terminal — scaled ×0.45 on mobile, 0 on low tier |
 
@@ -197,6 +198,21 @@ the whole thing is scaled to fit (`useCardScale`). Composition is identical
 everywhere, overflow is impossible by construction, and there is one set of
 numbers to maintain instead of two. Pointer deltas are divided by the scale so
 dragging still tracks the cursor exactly.
+
+**2026-09-10 — A second geometry for the upright phone, not a second type scale.**
+The one-layout rule above held the card at 620 x 391 everywhere, which on a 375px
+phone scaled it to 0.56 — a 347 x 219 sliver in an 812px screen, with body type
+landing near 6px. A phone held upright now gets the same ISO 7810 ID-1 card stood
+on its end, 372 x 590, at scale 0.94. What changes is the box and the direction the
+faces flow: the back's two columns become one run of sections, the front's footer
+stacks, and Blueprint and Sahyadri get portrait coordinates for their signatures
+(preserveAspectRatio is `none`, so one coordinate set would have flattened the
+callout circle into an ellipse). Every font size is inherited from the landscape
+set, so the 2026-08-28 objection to two size sets still stands — there is still one
+set of type numbers, and each face is still scaled to fit, so overflow remains
+impossible by construction. Selected by `(max-width: 820px) and (orientation:
+portrait)`: a phone turned sideways keeps the landscape card, which suits that
+viewport shape better.
 
 **2026-08-28 — `App` stays a class component.**
 The animation loop writes `style.transform` directly on refs every frame and never

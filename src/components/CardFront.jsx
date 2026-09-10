@@ -13,6 +13,7 @@ export default function CardFront({
   statNums,
   comboTag,
   swapping,
+  portrait,
 }) {
   return (
     <div
@@ -96,7 +97,7 @@ export default function CardFront({
           fontStyle: t.quoteStyle,
           color: t.text,
           opacity: 0.86,
-          maxWidth: '82%',
+          maxWidth: m.taglineMax,
           minHeight: m.taglineMin,
           textWrap: 'pretty',
         }}
@@ -202,8 +203,12 @@ export default function CardFront({
       <div
         style={{
           display: 'flex',
+          // Upright, the two footer lines do not fit side by side — Blueprint's
+          // dimension string alone is wider than half the face — so they stack.
+          flexDirection: portrait ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'flex-end',
+          alignItems: portrait ? 'flex-start' : 'flex-end',
+          gap: portrait ? 4 : 0,
           borderTop: `1px solid ${t.line}`,
           paddingTop: m.gapS,
         }}
